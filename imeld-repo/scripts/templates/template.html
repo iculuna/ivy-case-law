@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ivy Medical Employment Law Database (IMELD)</title>
+<style>
+__CSS_PLACEHOLDER__
+</style>
+</head>
+<body class="__VIEW_MODE_CLASS__">
+
+<!-- ============ MAIN PAGE ============ -->
+<div class="main-page">
+  <header>
+    <div class="container">
+      <h1>Ivy Medical Employment Law Database (IMELD)</h1>
+      <p class="subtitle">Cases, statutes, and regulations for ID, MT, WA, and federal employment law — with practical Ivy Medical application.</p>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- View mode banner — replaced by build script -->
+    <div class="view-banner __VIEW_BANNER_CLASS__">
+      <span class="view-banner-label">__VIEW_BANNER_LABEL__</span>
+      <span class="view-banner-other"><a href="__OTHER_VIEW_LINK__">__OTHER_VIEW_TEXT__</a></span>
+    </div>
+
+    <div class="toolbar">
+      <div class="search-box">
+        <input type="text" id="search-input" placeholder="Search everything — try 'meal breaks', 'Washington termination', or 'PREA'…" />
+      </div>
+      <div class="filter-group">
+        <select id="filter-entryType"></select>
+        <select id="filter-year"></select>
+      </div>
+      <button class="btn btn-primary" id="btn-compare">🔀 Compare</button>
+      <span class="maintenance-tools">
+        <button class="btn btn-primary" id="btn-add">+ Add Entry</button>
+        <button class="btn btn-ghost" id="btn-export">⬇ Export</button>
+        <button class="btn btn-ghost" id="btn-import">⬆ Import</button>
+        <input type="file" id="import-file" accept="application/json" style="display:none;" />
+        <button class="btn btn-ghost" id="btn-reset" title="Reset to original seed entries">↺ Reset</button>
+      </span>
+    </div>
+
+    <div class="multi-select-row">
+      <div class="ms-label">Jurisdictions:</div>
+      <div class="ms-pills" id="filter-jurisdictions-pills"></div>
+    </div>
+
+    <div class="multi-select-row">
+      <div class="ms-label">Buckets:</div>
+      <div class="ms-pills" id="filter-buckets-pills"></div>
+    </div>
+
+    <div class="quick-filters">
+      <button class="pill" id="pill-favorites">★ Favorites only</button>
+      <button class="pill" id="pill-quirky">⚠️ Quirky rules only</button>
+      <button class="pill" id="pill-clear">Clear all filters</button>
+    </div>
+
+    <div class="stats" id="stats">Loading…</div>
+
+    <div id="cases-container"></div>
+
+    <div class="footer-note">
+      <strong>About IMELD:</strong> Working reference for employment law affecting Ivy Medical's operations across Idaho, Montana, Washington, and federally. Each entry includes the legal rule, factual context, and operational application. Star important entries to find them faster — favorites save in your browser only.
+      <br><br>
+      <strong>Last reviewed: __LAST_REVIEWED__.</strong> Statutes and case law change. Verify current law before any decision with real consequences. When this database disagrees with a lawyer, the lawyer wins.
+    </div>
+  </div>
+</div>
+
+<!-- ============ DETAIL PAGE ============ -->
+<div class="detail-page">
+  <div class="detail-header">
+    <div class="container">
+      <button class="back-btn" id="btn-back-from-detail">← Back to database</button>
+      <h1 class="detail-title" id="detail-title"></h1>
+      <p class="detail-subtitle" id="detail-subtitle"></p>
+    </div>
+  </div>
+  <div class="detail-content" id="detail-content"></div>
+</div>
+
+<!-- ============ COMPARISON PAGE ============ -->
+<div class="comparison-page">
+  <div class="detail-header">
+    <div class="container">
+      <button class="back-btn" id="btn-back-from-comparison">← Back to database</button>
+      <h1 class="detail-title">Jurisdiction Comparison</h1>
+      <p class="detail-subtitle">Side-by-side WA / ID / MT analysis with federal context.</p>
+    </div>
+  </div>
+  <div class="comparison-content">
+    <div class="comparison-controls">
+      <label for="comparison-bucket-select">Topic bucket:</label>
+      <select id="comparison-bucket-select"></select>
+      <button class="btn btn-ghost" onclick="window.print()">🖨️ Print comparison</button>
+    </div>
+    <div id="comparison-content-inner"></div>
+  </div>
+</div>
+
+<!-- ============ ADD / EDIT MODAL ============ -->
+<div class="modal-backdrop" id="modal-backdrop">
+  <div class="modal">
+    <h2 id="modal-title">Add Entry</h2>
+    <p class="modal-subtitle" id="modal-subtitle"></p>
+
+    <input type="hidden" id="form-id" />
+
+    <div class="form-row">
+      <label>Entry Name (e.g., "Smith v. Jones" or "RCW 49.46.210")</label>
+      <input type="text" id="form-name" required />
+    </div>
+
+    <div class="form-row-double">
+      <div class="form-row">
+        <label>Year</label>
+        <input type="number" id="form-year" />
+      </div>
+      <div class="form-row">
+        <label>Citation</label>
+        <input type="text" id="form-cite" placeholder="e.g., 19 Wn. App. 2d 295" />
+      </div>
+    </div>
+
+    <div class="form-row-double">
+      <div class="form-row">
+        <label>Jurisdiction</label>
+        <select id="form-jurisdiction">
+          <option value="Federal">Federal</option>
+          <option value="Washington">Washington</option>
+          <option value="Idaho">Idaho</option>
+          <option value="Montana">Montana</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Court / Source</label>
+        <input type="text" id="form-court" placeholder="e.g., WA Supreme Court" />
+      </div>
+    </div>
+
+    <div class="form-row-double">
+      <div class="form-row">
+        <label>Bucket</label>
+        <select id="form-bucket"></select>
+      </div>
+      <div class="form-row">
+        <label>Entry Type</label>
+        <select id="form-entryType">
+          <option>Case</option>
+          <option>Statute</option>
+          <option>Regulation</option>
+          <option>Guidance</option>
+          <option>Form</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <label>Topic (free text, optional sub-category)</label>
+      <input type="text" id="form-topic" placeholder="e.g., Travel Pay" />
+    </div>
+
+    <div class="form-row-double">
+      <div class="form-row">
+        <label>Relevance</label>
+        <select id="form-relevance">
+          <option value="high">Cornerstone</option>
+          <option value="med">Important</option>
+          <option value="low">Reference</option>
+        </select>
+      </div>
+      <div class="form-row" style="display:flex; align-items:center; gap:16px; padding-top:20px;">
+        <label style="display:flex; align-items:center; gap:6px; margin:0; text-transform:none; font-size:14px;">
+          <input type="checkbox" id="form-quirky" /> Quirky state rule
+        </label>
+        <label style="display:flex; align-items:center; gap:6px; margin:0; text-transform:none; font-size:14px;">
+          <input type="checkbox" id="form-favorite" /> ★ Favorite
+        </label>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <label>Holding / Summary (the rule in one sentence)</label>
+      <textarea id="form-holding" required></textarea>
+    </div>
+
+    <div class="form-row">
+      <label>Facts / Operative Provisions</label>
+      <textarea id="form-facts"></textarea>
+    </div>
+
+    <div class="form-row">
+      <label>Reasoning / Legislative Intent</label>
+      <textarea id="form-reasoning"></textarea>
+    </div>
+
+    <div class="form-row">
+      <label>Application — Ivy Medical Practice</label>
+      <textarea id="form-application" required></textarea>
+    </div>
+
+    <div class="form-row">
+      <label>Do's (one per line)</label>
+      <textarea id="form-dos" placeholder="One do per line"></textarea>
+    </div>
+
+    <div class="form-row">
+      <label>Don'ts (one per line)</label>
+      <textarea id="form-donts" placeholder="One don't per line"></textarea>
+    </div>
+
+    <div class="form-row">
+      <label>Related Entries (comma-separated IDs)</label>
+      <input type="text" id="form-related" placeholder="e.g., sacks-2021, flsa-778-318" />
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="btn-modal-cancel">Cancel</button>
+      <button class="btn btn-primary" id="btn-modal-save">Save Entry</button>
+    </div>
+  </div>
+</div>
+
+<script>
+__JS_PLACEHOLDER__
+</script>
+
+</body>
+</html>
